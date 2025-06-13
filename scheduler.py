@@ -1,85 +1,79 @@
-import dataLoader, gpuCalc, dataSaver
-from multiprocessing import Process, Pipe, active_children
-from time import sleep, time
-
+#!/usr/bin/env python3
 """
 scheduler.py
 Starts and manages processes which load data, do raster calculations on GPU,
 and save data back to disk.
-
-copyright            : (C) 2016 by Alex Feurst, Charles Kazer, William Hoffman
-email                : fuersta1@xavier.edu, ckazer1@swarthmore.edu, whoffman1@gulls.salisbury.edu
-
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
 """
+import sys
+import time
+from multiprocessing import Pipe, Process, active_children
+from time import sleep
+from dataLoader import main as data_loader_main
+from dataSaver import main as data_saver_main
+from gpuCalc import GPUCalculator
 
-#NOTE: USAGE: scheduler.py input output_1 func_1 output_2 func_2 ... output_n func_n
 
-def run(inputFile, outputFiles, functions, disk_rows = 15):
-    start = time()
-    # create input and output pipes    
-    inputPipe = Pipe()
-    outputPipes = []
-    for i in range(len(outputFiles)):
-        outputPipes.append(Pipe())
+def main(input_file, output_file, functions):
+    """
+    Unidirectional loader → GPU → saver pipeline.
+    Closes parent pipe ends immediately after starting children
+    to ensure EOF is signaled and no recv() blocks.
+    """
+    # Create pipes
+    loader_conn, gpu_conn    = Pipe(duplex=False)  # loader → GPU
+    gpu_out_conn, saver_conn = Pipe(duplex=False)  # GPU → saver
 
-    loader = dataLoader.dataLoader(inputFile, inputPipe[0], disk_rows)
-    loader.start()
-    header = loader.getHeaderInfo()
+    # Spawn processes
+    loader_proc = Process(
+        target=data_loader_main,
+        args=(input_file, loader_conn)
+    )
+    gpu_proc = GPUCalculator(
+        gpu_conn,
+        [gpu_out_conn],
+        functions
+    )
+    saver_proc = Process(
+        target=data_saver_main,
+        args=(output_file, saver_conn)
+    )
 
-    calc = gpuCalc.GPUCalculator(header, inputPipe[1], list(map((lambda x: x[0]), outputPipes)), functions)
-    calc.start()
-    
-    savers = []
-    for i in range(len(outputFiles)):
-        savers.append(dataSaver.dataSaver(outputFiles[i], header, outputPipes[i][1], disk_rows))
+    loader_proc.start()
+    gpu_proc.start()
+    saver_proc.start()
 
-    # start all threads
-    for i in range(len(outputFiles)):
-        savers[i].start()
+    # Forward header from loader → GPU into saver
+    header_tuple = loader_conn.recv()
+    gpu_conn.send(header_tuple)
+    saver_conn.send(header_tuple)
 
-    # join all threads
-    try:
-        while active_children():
-            if loader.exitcode != None and loader.exitcode != 0:
-                print("Error encountered in data loader, ending tasks")            
-                calc.stop()
-                for saver in savers:
-                    saver.stop()
-                break
-            if calc.exitcode != None and calc.exitcode != 0:
-                loader.stop()
-                for saver in savers:
-                    saver.stop()
-                print("Error encountered in GPU calculater, ending tasks")
-                break
-            sleep(1)    
-        total = time() - start
-        print("Total time: %d mins, %f secs" % (total / 60, total % 60))
-    except: # if anything crashes stop the rest of threads
-        if loader.exitcode != None:
-            loader.stop()
-        if calc.exitcode != None:
-            calc.stop()
-        for saver in savers:
-            if saver.exitcode != None:
-                saver.stop()
+    # Close parent’s copies of pipe ends to signal EOF
+    loader_conn.close()
+    gpu_conn.close()
+    gpu_out_conn.close()
+    saver_conn.close()
+
+    # Wait for clean exit
+    loader_proc.join()
+    gpu_proc.join()
+    saver_proc.join()
+
 
 if __name__ == '__main__':
-    #If run from the command line, parse arguments.
-    from sys import argv
-    outFiles = []
-    funcs = []
-    disk_rows = 15  # ~15 appears to be optimal number of rows to read at a time for any file
-    for i in range(2,len(argv), 2):
-        outFiles.append(argv[i])
-        funcs.append(argv[i+1].lower())
-    run(argv[1], outFiles, funcs, disk_rows)
+    if len(sys.argv) < 5 or len(sys.argv) % 2 != 1:
+        print("Usage: scheduler.py input output1 func1 [output2 func2 ...]", file=sys.stderr)
+        sys.exit(1)
 
+    input_file = sys.argv[1]
+    out_files = sys.argv[2::2]
+    funcs = [f.lower() for f in sys.argv[3::2]]
+    main(input_file, out_files[0], funcs)
+    if len(sys.argv) < 5 or len(sys.argv) % 2 != 1:
+        print("Usage: scheduler.py input output1 func1 [output2 func2 ...]", file=sys.stderr)
+        sys.exit(1)
+
+    input_file = sys.argv[1]
+    out_files = sys.argv[2::2]
+    funcs = [f.lower() for f in sys.argv[3::2]]
+    header = None  # will be populated by loader
+    main(input_file, out_files[0], header, funcs)

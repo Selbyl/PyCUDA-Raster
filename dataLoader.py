@@ -98,7 +98,7 @@ class dataLoader(Process):
     opens file_name and sets it to open_file, supports '.tif' and '.asc' files
     """
     def _openFile(self):
-        self.open_file = gdal.Open(self.file_name, GA_ReadOnly)
+        self.open_file = gdal.Open(self.file_name, gdc.GA_ReadOnly)
         self.open_raster_band = self.open_file.GetRasterBand(1)
         self.dataType = self.open_raster_band.DataType
         #self.unpackVal = fmttypes[gdal.GetDataTypeName(self.dataType)]*self.open_raster_band.XSize
