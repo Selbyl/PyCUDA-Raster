@@ -1,5 +1,4 @@
-from osgeo import gdal
-from gdalconst import *
+from osgeo import gdal, gdalconst as gdc
 from multiprocessing import Process, Pipe
 import struct
 from numpy import float32, frombuffer

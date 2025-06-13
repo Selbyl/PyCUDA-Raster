@@ -1,4 +1,4 @@
-from osgeo import gdal
+from osgeo import gdal, gdalconst as gdc
 from multiprocessing import Process, Pipe
 import struct, os, os.path
 from numpy import float32, frombuffer
