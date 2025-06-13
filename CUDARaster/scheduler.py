@@ -1,4 +1,4 @@
-import dataLoader, gpuCalc, dataSaver
+from . import dataLoader, gpuCalc, dataSaver
 import numpy as np
 
 from multiprocessing import Process, Pipe, active_children
@@ -35,14 +35,14 @@ email                : fuersta1@xavier.edu, ckazer1@swarthmore.edu, whoffman1@gu
 # input and output files must have the same file type
 
 def run(inputFile, outputFiles, functions, disk_rows = 20):
-    print os.path.realpath(__file__)
+    print(os.path.realpath(__file__))
     if os.path.exists(os.path.realpath(__file__)[:-len("scheduler.py")+1] + "scheduler_log.txt"):
         os.remove(os.path.realpath(__file__)[:-len("scheduler.py")+1] + "scheduler_log.txt")
     logfile = open(os.path.realpath(__file__)[:-len("scheduler.py")+1] + "scheduler_log.txt", 'w')
     logfile.write(str(inputFile))
     logfile.flush()
 
-    print inputFile, "\nin scheduler\n"
+    print(inputFile, "\nin scheduler\n")
     start = time()
     try:
         # create input and output pipes    
@@ -55,7 +55,7 @@ def run(inputFile, outputFiles, functions, disk_rows = 20):
         loader.start()
         header = loader.getHeaderInfo()
 
-        calc = gpuCalc.GPUCalculator(header, inputPipe[1], map((lambda x: x[0]), outputPipes), functions)
+        calc = gpuCalc.GPUCalculator(header, inputPipe[1], list(map((lambda x: x[0]), outputPipes)), functions)
         calc.start()
         
         savers = []
@@ -86,11 +86,11 @@ def run(inputFile, outputFiles, functions, disk_rows = 20):
     
     except IOError as e:
         logfile.write(str(e) + "\n")
-        print e
+        print(e)
         return True
 
     comp = time() - start
-    print "Processing completed in: %d mins, %d secs" % (comp / 60, comp % 60)
+    print("Processing completed in: %d mins, %d secs" % (comp / 60, comp % 60))
     logfile.write("Processing completed in: %d mins, %d secs\n" % (comp / 60, comp % 60))
     logfile.write("program ended")
     return False

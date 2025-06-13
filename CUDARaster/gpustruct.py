@@ -115,7 +115,7 @@ class GPUStruct(object):
                 # get the current bytes
                 dat = np.ascontiguousarray(fmt(getattr(self,obj)))
                 cur_nbytes = dat.nbytes
-                if self.__nbytes.has_key(obj) and \
+                if obj in self.__nbytes and \
                        self.__nbytes[obj] != cur_nbytes:
                     # free it
                     self.__ptrs[obj].free()

@@ -115,6 +115,6 @@ class layerLoader(Process):
 
     def log(self, message):
         self.logfile.write(str(message) + '\n')
-        print str(message)
+        print(str(message))
         self.logfile.flush()
 

@@ -53,7 +53,7 @@ class CUDARaster:
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&CUDA Raster')
+        self.menu = self.tr('&CUDA Raster')
 
         self.dlg.input_line.clear()
         self.dlg.input_button.clicked.connect(self.select_input_file)
@@ -105,7 +105,7 @@ class CUDARaster:
             # in Windows use back slashes.
             input_file = str(self.dlg.input_line.text())
             if input_file == "":
-                print "NO OPTION SELECTED!"
+                print("NO OPTION SELECTED!")
                 return
 
             if name == 'posix':
@@ -115,10 +115,10 @@ class CUDARaster:
                 input_file_name = input_file[input_file.rfind('/')+1:]
                 input_file_name = "\\" + input_file_name[:-4]
 
-            print "file name: ", input_file_name
-            print "input file: ", input_file
+            print("file name: ", input_file_name)
+            print("input file: ", input_file)
 
-            print input_file, " in cudaRaster"
+            print(input_file, " in cudaRaster")
             if self.dlg.slope_check.isChecked():
                 functions.append("slope")
             if self.dlg.aspect_check.isChecked():
@@ -132,7 +132,7 @@ class CUDARaster:
 
             # Run main code
             if scheduler.run(input_file, outputs, functions):
-                print "Something went wrong."
+                print("Something went wrong.")
                 self.dlg2.show()
                 self.dlg2.pushButton.clicked.connect((lambda: self.dlg2.close()))
 		

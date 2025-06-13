@@ -99,7 +99,7 @@ class GPUCalculator(Process):
                 self._writeData(processed_rows, self.output_pipes[i])
 
             processed_rows += (self.maxPossRows-2)  # -2 because of buffer rows
-            print "Page done... %.3f %% completed" % ((float(processed_rows) / float(self.totalRows)) * 100)
+            print("Page done... %.3f %% completed" % ((float(processed_rows) / float(self.totalRows)) * 100))
         #Process remaining data in buffer
         cuda.memcpy_htod(self.data_gpu, self.to_gpu_buffer)
         for i in range(len(self.functions)):
@@ -107,7 +107,7 @@ class GPUCalculator(Process):
             cuda.memcpy_dtoh(self.from_gpu_buffer, self.result_gpu) 
             self._writeData(processed_rows, self.output_pipes[i])
 
-        print "GPU calculations finished"
+        print("GPU calculations finished")
         for pipe in self.output_pipes:
             pipe.close()
         # clean up on GPU
@@ -129,7 +129,7 @@ class GPUCalculator(Process):
         self.maxPossRows = np.int(np.floor(self.freeMem / (4 * self.totalCols)))    # multiply by 4 as that is size of float
         # set max rows to smaller number to save memory usage
         if self.totalRows < self.maxPossRows:
-            print "reducing max rows to reduce memory use on GPU"
+            print("reducing max rows to reduce memory use on GPU")
             self.maxPossRows = self.totalRows
 
         # create pagelocked buffers and GPU arrays
@@ -167,7 +167,7 @@ class GPUCalculator(Process):
                     row_count += 1
             #Pipe was closed unexpectedly
             except EOFError:
-                print "Pipe closed unexpectedly."
+                print("Pipe closed unexpectedly.")
                 self.stop()
             self.to_gpu_buffer[row_count].fill(self.NODATA)
             return False # finished receiving data, tell run to end
@@ -179,7 +179,7 @@ class GPUCalculator(Process):
                     row_count += 1
             #Pipe was closed unexpectedly
             except EOFError:
-                print "Pipe closed unexpectedly."
+                print("Pipe closed unexpectedly.")
                 self.stop()              
             #Update carry over rows
             np.put(self.carry_over_rows[0], self.np_copy_arr, self.to_gpu_buffer[self.maxPossRows-2])
@@ -248,7 +248,7 @@ class GPUCalculator(Process):
     Cleans up CUDA and pipes
     """
     def stop(self):
-        print "Stopping gpuCalc..."
+        print("Stopping gpuCalc...")
         try:
             self.data_gpu.free() # free pagelocked memory
             self.result_gpu.free()
@@ -386,7 +386,7 @@ class GPUCalculator(Process):
                 hillshade(dz_dx, dz_dy)
                 """)
         else:
-            print "Function %s not implemented" % func
+            print("Function %s not implemented" % func)
             self.stop()
             #raise NotImplementedError
 

@@ -1,6 +1,6 @@
 from multiprocessing import Process,Pipe
 import numpy as np
-from gpustruct import GPUStruct
+from .gpustruct import GPUStruct
 import pycuda.driver as cuda
 from pycuda.compiler import SourceModule
 
@@ -103,7 +103,7 @@ class GPUCalculator(Process):
                 self._writeData(count, self.output_pipes[i])
 
             count += (self.maxPossRows-2)  # -2 because of buffer rows
-            print "Page done... %.3f %% completed" % ((float(count) / float(self.totalRows)) * 100)
+            print("Page done... %.3f %% completed" % ((float(count) / float(self.totalRows)) * 100))
         #Process remaining data in buffer
         cuda.memcpy_htod(self.data_gpu, self.to_gpu_buffer)
         for i in range(len(self.functions)):
@@ -114,7 +114,7 @@ class GPUCalculator(Process):
         for pipe in self.output_pipes:
             pipe.close()
 
-        print "GPU calculations finished"
+        print("GPU calculations finished")
         # clean up on GPU
         self.data_gpu.free()
         self.result_gpu.free()
@@ -134,7 +134,7 @@ class GPUCalculator(Process):
         self.maxPossRows = np.int(np.floor(self.freeMem / (4 * self.totalCols)))
         # set max rows to smaller number to save memory usage
         if self.totalRows < self.maxPossRows:
-            print "reducing max rows to reduce memory use on GPU"
+            print("reducing max rows to reduce memory use on GPU")
             self.maxPossRows = self.totalRows
             #self.maxPossRows = 100
 
@@ -173,7 +173,7 @@ class GPUCalculator(Process):
                     row_count += 1
             #Pipe was closed unexpectedly
             except EOFError:
-                print "Pipe closed unexpectedly."
+                print("Pipe closed unexpectedly.")
                 self.stop()
             self.to_gpu_buffer[row_count].fill(self.NODATA)
             return False # finished receiving data, tell run to end
@@ -185,7 +185,7 @@ class GPUCalculator(Process):
                     row_count += 1
             #Pipe was closed unexpectedly
             except EOFError:
-                print "Pipe closed unexpectedly."
+                print("Pipe closed unexpectedly.")
                 self.stop()              
             #Update carry over rows
             np.put(self.carry_over_rows[0], self.np_copy_arr, self.to_gpu_buffer[self.maxPossRows-2])
@@ -254,7 +254,7 @@ class GPUCalculator(Process):
     Cleans up CUDA and pipes
     """
     def stop(self):
-        print "Stopping gpuCalc..."
+        print("Stopping gpuCalc...")
         self.data_gpu.free()
         self.result_gpu.free()
         cuda.Context.pop()
@@ -390,7 +390,7 @@ class GPUCalculator(Process):
                 hillshade(dz_dx, dz_dy)
                 """)
         else:
-            print "Function %s not implemented" % func
+            print("Function %s not implemented" % func)
             raise NotImplementedError
 
     #--------------------------------------------------------------------------#

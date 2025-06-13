@@ -28,13 +28,13 @@ from qgis.core import *
 from qgis.gui import *
 from qgis.utils import *
 # Initialize Qt resources from file resources.py
-import resources
+from . import resources
 # Import the code for the dialog
-from cudaRaster_dialog import CUDARasterDialog
-from cudaRasterCrash_dialog import CUDARasterDialogCrash
+from .cudaRaster_dialog import CUDARasterDialog
+from .cudaRasterCrash_dialog import CUDARasterDialogCrash
 import os.path
 
-import scheduler
+from . import scheduler
 
 class CUDARaster:
     """QGIS Plugin Implementation."""
@@ -71,10 +71,10 @@ class CUDARaster:
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&CUDA Raster')
+        self.menu = self.tr('&CUDA Raster')
         # TODO: We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar(u'CUDARaster')
-        self.toolbar.setObjectName(u'CUDARaster')
+        self.toolbar = self.iface.addToolBar('CUDARaster')
+        self.toolbar.setObjectName('CUDARaster')
 
         self.dlg.input_line.clear()
         self.dlg.input_button.clicked.connect(self.select_input_file)
@@ -182,7 +182,7 @@ class CUDARaster:
         icon_path = ':/plugins/CUDARaster/icon.png'
         self.add_action(
             icon_path,
-            text=self.tr(u'CUDA Raster'),
+            text=self.tr('CUDA Raster'),
             callback=self.run,
             parent=self.iface.mainWindow())
 
@@ -190,7 +190,7 @@ class CUDARaster:
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
             self.iface.removePluginRasterMenu(
-                self.tr(u'&CUDA Raster'),
+                self.tr('&CUDA Raster'),
                 action)
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
@@ -226,7 +226,7 @@ class CUDARaster:
             functions = []
             outputs = []
             selected_index = self.dlg.input_layer_box.currentIndex()
-            print "layer index: ", selected_index
+            print("layer index: ", selected_index)
 
             # Check if layer selected for input
             # If os.name is posix, file structure uses forward slashes. Otherwise,
@@ -234,7 +234,7 @@ class CUDARaster:
             if selected_index != 0:
                 input_file = self.layers[selected_index-1]
                 input_file_name = input_file.name()
-                print "file name: ", input_file_name
+                print("file name: ", input_file_name)
                 if name == 'posix':
                     input_file_name = "/" + input_file_name
                 else:
@@ -244,7 +244,7 @@ class CUDARaster:
             else:
                 input_file = str(self.dlg.input_line.text())
                 if input_file == "":
-                    print "NO OPTION SELECTED!"
+                    print("NO OPTION SELECTED!")
                     return
          
                 if name == 'posix':
@@ -254,10 +254,10 @@ class CUDARaster:
                     input_file_name = input_file[input_file.rfind('/')+1:]
                     input_file_name = "\\" + input_file_name[:-4]
 
-                print "file name: ", input_file_name
-                print "input file: ", input_file
+                print("file name: ", input_file_name)
+                print("input file: ", input_file)
 
-            print input_file, " in cudaRaster"
+            print(input_file, " in cudaRaster")
             if self.dlg.slope_check.isChecked():
                 functions.append("slope")
             if self.dlg.aspect_check.isChecked():
@@ -271,7 +271,7 @@ class CUDARaster:
 
             # Run main code
             if scheduler.run(input_file, outputs, functions):
-                print "Something went wrong."
+                print("Something went wrong.")
                 self.dlg2.show()
                 self.dlg2.pushButton.clicked.connect((lambda: self.dlg2.close()))
 

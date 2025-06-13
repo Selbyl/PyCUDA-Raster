@@ -39,7 +39,7 @@ class dataLoader(Process):
     """
     def __init__(self, _input_file, _output_pipe, _disk_rows):
         Process.__init__(self)
-        print os.path.realpath(__file__)
+        print(os.path.realpath(__file__))
         if os.path.exists(os.path.realpath(__file__)[:-len("dataLoader.py")+1] + "data_loader_log.txt"):
             os.remove(os.path.realpath(__file__)[:-len("dataLoader.py")+1] + "data_loader_log.txt")
         self.logfile = open(os.path.realpath(__file__)[:-len("dataLoader.py")+1] + "data_loader_log.txt", 'w')
@@ -56,7 +56,7 @@ class dataLoader(Process):
 
     def log(self, message):
         self.logfile.write(str(message) + '\n')
-        print str(message)
+        print(str(message))
         #self.logfile.flush()
 
     #--------------------------------------------------------------------------#
@@ -118,7 +118,7 @@ class dataLoader(Process):
         elif ".tif" in self.file_name:
             self.file_type = "tif"
         else:
-            print "Unsupported file type"
+            print("Unsupported file type")
             self.stop()
 
     #--------------------------------------------------------------------------#
@@ -183,10 +183,10 @@ class dataLoader(Process):
                         self.output_pipe.send(frombuffer(line_tup[(line*self.totalCols*4): (line*self.totalCols + self.totalCols)*4], dtype=float32))
             # EOF
             except RuntimeError as e:
-                print e
+                print(e)
                 return
             line_num += self.read_rows
-        print "finished reading rows"
+        print("finished reading rows")
 
     #--------------------------------------------------------------------------#
 
@@ -198,7 +198,7 @@ class dataLoader(Process):
     def _loadFunc(self):
         self._getLines()
         self.output_pipe.close()
-        print "Input file loaded from disk"
+        print("Input file loaded from disk")
         self.logfile.flush()
 
 if __name__=="__main__":

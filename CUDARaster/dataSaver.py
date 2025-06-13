@@ -3,8 +3,8 @@ import numpy as np
 import os.path
 import os
 from osgeo import gdal
-import Tkinter as tk
-import ttk
+import tkinter as tk
+import tkinter.ttk
 
 gdal.UseExceptions()
 fmttypes = {'Byte':'B', 'UInt16':'H', 'Int16':'h', 'UInt32':'I', 'Int32':'i', 'Float32':'f', 'Float64':'d'}
@@ -76,7 +76,7 @@ class dataSaver(Process):
 
     def log(self, message):
         self.logfile.write(str(message) + '\n')
-        print str(message)
+        print(str(message))
         #self.logfile.flush()
 
     #--------------------------------------------------------------------------#
@@ -108,8 +108,8 @@ class dataSaver(Process):
     """
     def _gui(self):
         self.rt = tk.Tk()
-        self.pb=ttk.Progressbar(mode="determinate", maximum=self.totalRows)
-        self.lb = ttk.Label(text = self.file_name + " progress")
+        self.pb=tkinter.ttk.Progressbar(mode="determinate", maximum=self.totalRows)
+        self.lb = tkinter.ttk.Label(text = self.file_name + " progress")
         self.lb.pack(side="top", fill="x")
         self.pb.pack(side="bottom", fill="x")
 
@@ -158,7 +158,7 @@ class dataSaver(Process):
         try:
             self.dataset.SetProjection(str(self.prj))
         except RuntimeError:
-            print "Warning: Invalid projection."
+            print("Warning: Invalid projection.")
             self.dataset.SetProjection('')
 
     #--------------------------------------------------------------------------#

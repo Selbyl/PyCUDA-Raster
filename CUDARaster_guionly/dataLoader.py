@@ -108,7 +108,7 @@ class dataLoader(Process):
         elif ".tif" in self.file_name:
             self.file_type = "tif"
         else:
-            print "Unsupported file type"
+            print("Unsupported file type")
             self.stop()
 
     #--------------------------------------------------------------------------#
@@ -130,7 +130,7 @@ class dataLoader(Process):
     Closes file and pipe
     """
     def stop(self):
-        print "Stopping loader..."
+        print("Stopping loader...")
         self.open_file = None
         self.open_raster_band = None
         self.output_pipe.close()
@@ -176,10 +176,10 @@ class dataLoader(Process):
                         self.output_pipe.send(frombuffer(line_tup[(line*self.totalCols*4): (line*self.totalCols + self.totalCols)*4], dtype=float32))
             # EOF
             except RuntimeError as e:
-                print e
+                print(e)
                 return
             line_num += self.read_rows
-        print "finished reading rows"
+        print("finished reading rows")
 
     #--------------------------------------------------------------------------#
 
@@ -191,7 +191,7 @@ class dataLoader(Process):
     def _loadFunc(self):
         self._getLines()
         self.output_pipe.close()
-        print "Input file loaded from disk"
+        print("Input file loaded from disk")
 
 if __name__=="__main__":
     pass

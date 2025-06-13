@@ -34,7 +34,7 @@ def run(inputFile, outputFiles, functions, disk_rows = 15):
     loader.start()
     header = loader.getHeaderInfo()
 
-    calc = gpuCalc.GPUCalculator(header, inputPipe[1], map((lambda x: x[0]), outputPipes), functions)
+    calc = gpuCalc.GPUCalculator(header, inputPipe[1], list(map((lambda x: x[0]), outputPipes)), functions)
     calc.start()
     
     savers = []
@@ -49,7 +49,7 @@ def run(inputFile, outputFiles, functions, disk_rows = 15):
     try:
         while active_children():
             if loader.exitcode != None and loader.exitcode != 0:
-                print "Error encountered in data loader, ending tasks"            
+                print("Error encountered in data loader, ending tasks")            
                 calc.stop()
                 for saver in savers:
                     saver.stop()
@@ -58,11 +58,11 @@ def run(inputFile, outputFiles, functions, disk_rows = 15):
                 loader.stop()
                 for saver in savers:
                     saver.stop()
-                print "Error encountered in GPU calculater, ending tasks"
+                print("Error encountered in GPU calculater, ending tasks")
                 break
             sleep(1)    
         total = time() - start
-        print "Total time: %d mins, %f secs" % (total / 60, total % 60)
+        print("Total time: %d mins, %f secs" % (total / 60, total % 60))
     except: # if anything crashes stop the rest of threads
         if loader.exitcode != None:
             loader.stop()

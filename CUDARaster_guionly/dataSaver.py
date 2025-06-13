@@ -3,8 +3,8 @@ import numpy as np
 from os.path import exists
 from os import remove
 from osgeo import gdal
-import Tkinter as tk
-import ttk
+import tkinter as tk
+import tkinter.ttk
 
 gdal.UseExceptions()
 fmttypes = {'Byte':'B', 'UInt16':'H', 'Int16':'h', 'UInt32':'I', 'Int32':'i', 'Float32':'f', 'Float64':'d'}
@@ -97,8 +97,8 @@ class dataSaver(Process):
     """
     def _gui(self):
         self.rt = tk.Tk()
-        self.pb=ttk.Progressbar(mode="determinate", maximum=self.totalRows)
-        self.lb = ttk.Label(text = self.file_name + " progress")
+        self.pb=tkinter.ttk.Progressbar(mode="determinate", maximum=self.totalRows)
+        self.lb = tkinter.ttk.Label(text = self.file_name + " progress")
         self.lb.pack(side="top", fill="x")
         self.pb.pack(side="bottom", fill="x")
 
@@ -122,7 +122,7 @@ class dataSaver(Process):
     Closes file and pipes
     """
     def stop(self):
-        print "Stopping saver ", self.file_name ," ..."
+        print("Stopping saver ", self.file_name ," ...")
         self._closeFile()
         self.input_pipe.close()
         exit(1)
@@ -137,7 +137,7 @@ class dataSaver(Process):
     """
     def _openFile(self):
         if exists(self.file_name):
-            print self.file_name, "already exists. Deleting it..."
+            print(self.file_name, "already exists. Deleting it...")
             remove(self.file_name)
         self.driver = gdal.GetDriverByName('GTiff')
         self.dataset = self.driver.Create(self.file_name, self.totalCols, self.totalRows, 1, gdal.GDT_Float32, options = ['COMPRESS=DEFLATE', 'NUM_THREADS=2', 'BIGTIFF=YES'])
@@ -146,7 +146,7 @@ class dataSaver(Process):
         try:
             self.dataset.SetProjection(str(self.prj))
         except RuntimeError:
-            print "Warning: Invalid projection."
+            print("Warning: Invalid projection.")
             self.dataset.SetProjection('')
 
     #--------------------------------------------------------------------------#
@@ -170,7 +170,7 @@ class dataSaver(Process):
                     for row in range(rem):
                         np.put(arr[row], np_write_arr, self.input_pipe.recv())
                 except EOFError:
-                    print "Pipe closed unexpectedly"
+                    print("Pipe closed unexpectedly")
                     self.stop()
             else:
                 # write in as many rows as write_rows indicates
@@ -178,7 +178,7 @@ class dataSaver(Process):
                     for row in range(self.write_rows):
                         np.put(arr[row], np_write_arr, self.input_pipe.recv())
                 except EOFError:
-                    print "Pipe closed unexpectedly"
+                    print("Pipe closed unexpectedly")
                     self.stop()
             # write out rows
             self.dataset.GetRasterBand(1).WriteArray(arr, 0, nrows)
@@ -187,7 +187,7 @@ class dataSaver(Process):
             self.rt.update()
         # write out remaining lines
         self.dataset.FlushCache()
-        print "Output %s written to disk" % self.file_name
+        print("Output %s written to disk" % self.file_name)
 
 if __name__=="__main__":
     pass
