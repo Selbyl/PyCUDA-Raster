@@ -2,7 +2,7 @@ from multiprocessing import Process, Pipe
 import numpy as np
 from os.path import exists
 from os import remove
-from osgeo import gdal
+from osgeo import gdal, gdalconst as gdc
 import tkinter as tk
 import tkinter.ttk
 
