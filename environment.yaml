@@ -1,0 +1,22 @@
+name: pycuda-raster-env
+channels:
+  - conda-forge     # community packages
+  - nvidia          # cudatoolkit 12.x
+dependencies:
+  # Core
+  - python=3.11
+  - numpy
+  - pycuda
+  - gdal
+  - boost-cpp       # needed for some GDAL builds
+  - cudatoolkit=12.4
+
+  # GUI (comment out if headless)
+  - pyqt            # pulls Qt5 base libs
+
+  # pip-only extras
+  - pip
+  - pip:
+      - scikit-cuda
+      - cuda-python
+      - reikna
