@@ -1,129 +1,13 @@
-Windows (No QGIS):
+This is a fork of the original repo to port to Python 3.10. This has been tested on Ubuntu 24.10 with a Nvidia P40 and confirmed works with DEM.tif files from Copernicus.
 
-1) Install Python 2.7.12 from here:
-    https://www.python.org/downloads/
-    Add "C:\Python27;" and "C:\Python27\Scripts;" to your system PATH variable
+Currently experimenting with running batches to leverage multiple CPU cores and available VRAM. 
 
-    If you have multiple installations of Python on your machine you must ensure
-    to place these two at the front / top of your PATH.
-    You MUST install the 64 bit version of Python or the program will NOT work. 
+to run multiple files: 
 
-2) Install Visual Studio 2013 Community Edition
-    https://www.visualstudio.com/en-us/news/vs2013-community-vs.aspx
-    Add these 3 lines to system PATH
-    "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin;"
-    "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\amd64;"
-    "C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE;"
+cd to you source DEM.tif files.
 
-You will have to close and re-open any command prompt windows you have open to be able to 
-do later Python library installations.
-
-3) Install CUDA
-    https://developer.nvidia.com/cuda-downloads/
-
-4) Install Numpy
-    http://www.numpy.org/
-    or run "pip install numpy" in command prompt
-
-5) Install Boost
-    Install intsructions are located here:
-    http://www.boost.org/doc/libs/1_61_0/more/getting_started/windows.html
-
-6) Install Boost.Python
-    http://www.lfd.uci.edu/~gohlke/pythonlibs/#boost.python
-    Select the one titled "boost_python-1.59-cp27-none-win_amd64.whl"
-    Install it using "pip install boost_python-1.59-cp27-none-win_amd64.whl"
-
-7) Install Python GDAl
-    http://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal
-    Select the one titled "GDAL-2.0.3-cp27-cp27m-win_amd64.whl"
-    Install using "pip install GDAL-2.0.3-cp27-cp27m-win_amd64.whl"
-
-8) Install PyCUDA
-    This is a list of PyCUDA binaries:
-    http://www.lfd.uci.edu/~gohlke/pythonlibs/#pycuda
-    Select the one titled "pycuda-2016.1.2+cuda7518-cp27-cp27m-win_amd64.whl"
-    Navigate to your downloads folder in command prompt and run "pip install pycuda-2016.1.2+cuda7518-cp27-cp27m-win_amd64.whl"
-
-9) (OPTIONAL) Install PyQT4
-    In order to use the standalone GUI, you need the PyQT4 libraries.
-    http://www.lfd.uci.edu/~gohlke/pythonlibs/#pyqt4
-    Select the package titles "PyQt4-4.11.4-cp27-none-win_amd64.whl"
-    Navigate to your downloads folder in command prompt and run "pip install PyQt4-4.11.4-cp27-none-win_amd64.whl"
-
-**THIS INSTALLATION WILL NOT WORK WITH QGIS. OUR PLUGIN DOESN'T CURRENTLY SUPPORT WINDOWS**
-
-##################################################################################
-
-Debian (Ubunutu, Mint, ...) based systems:
-
-1. Make sure Python 2.7 is installed, it probably is by default. QGIS wouldn't
-build without a Python installation, so you likely have it.
-
-------------------------------------------------------------------------------
-
-2. Make sure Numpy is installed. This is a QGIS dependency, so it should
-already be installed. To make sure Numpy is installed, open the Python
-interpreter or write a Python script and type "import numpy". If this fails,
-you will need to install Numpy. On Ubuntu you can do this on Ubuntu by using
-the following command on the command line.
-    sudo apt-get install python-numpy 
-Or, you can use pip which is included with Python. 
-    pip install numpy
-
-------------------------------------------------------------------------------
-
-3. Make sure GDAL for Python is installed. This is another QGIS dependency, so
-it should already be installed if you have QGIS.  To check if GDAL is
-installed, open the Python interpreter or write a Python script and type
-"import osgeo". If this fails, you will need to install GDAL.  You can do this
-on Ubuntu through
-    sudo apt-get install python-gdal
-or, you can download and install GDAL directly. You will need to build GDAL,
-and then build the python library on top of it.
-    http://www.gdal.org/   
-    https://pypi.python.org/pypi/GDAL/
-
-------------------------------------------------------------------------------
-
-4. You will need a compatible NVIDIA driver for your version of Linux, as
-well as CUDA 6.0 or greater. Detailed instructions on downloading and
-installing CUDA can be found here
-    http://docs.nvidia.com/cuda/cuda-getting-started-guide-for-linux/index.html
-
-------------------------------------------------------------------------------
-
-5. For PyCUDA to be able to interact with CUDA properly, Boost.Python, part of
-Boost C++ libraries must be installed. If Boost isn't already installed, on
-Ubuntu you can use
-    sudo apt-get install libboost-all-dev
-or download and install directly from the boost website.
-    http://www.boost.org/
-
-------------------------------------------------------------------------------
-
-6. Finally, install PyCUDA. The most reliable way to install PyCUDA is to
-download it from the Python Package Index and install it by following the
-instructions in README_SETUP.txt inside unpackaged folder.
-    https://pypi.python.org/pypi/pycuda
-Or you can try to install it using pip
-    pip install pycuda
-
-------------------------------------------------------------------------------
-
-7. In order for PyCUDA to recognize the CUDA installation, you many need to
-change some path variables. Edit your .bashrc file (usually located in
-/home/username/) and add the following lines
-
-export PATH=$PATH:/path/to/cuda/bin
-export LD_LIBRARY_PATH=/path/to/cuda/lib64
-
-"/path/to/cuda" should be wherever you have your CUDA installation from step 4.
-For me that is "/usr/local/cuda-7.0". Once you're done editing the .bashrc file,
-run the command "source .bashrc" to update the changes.
-
-------------------------------------------------------------------------------
-
-8. You should now be able to run the plugin from the command line. In order for
-QGIS to properly recognize all of the changes, you may need to restart your
-computer.
+parallel -j XX \
+  'out="location/of/output{/.}_hillshade.tif"; \ 
+   ROWS_MAX=3600 python3 /location/to/scheduler.py \
+     {} "$out" hillshade' \
+  ::: *.tif
