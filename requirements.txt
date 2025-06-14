@@ -1,0 +1,12 @@
+# Core runtime
+numpy>=1.26          # fast array maths :contentReference[oaicite:1]{index=1}
+pycuda>=2025.1       # CUDA driver/runtime bindings :contentReference[oaicite:2]{index=2}
+gdal>=3.8            # raster I/O / CRS handling :contentReference[oaicite:3]{index=3}
+
+# Nice-to-have GPU helpers (optional but recommended)
+scikit-cuda>=0.5.6   # BLAS/FFT wrappers on CUDA :contentReference[oaicite:4]{index=4}
+cuda-python>=12.5.0  # thin official CUDA bindings :contentReference[oaicite:5]{index=5}
+reikna>=0.9.2        # reusable GPU algorithms :contentReference[oaicite:6]{index=6}
+
+# GUI front-end (only if you plan to revive the QGIS plugin / standalone GUI)
+PyQt5>=5.15 ; extra == "gui" :contentReference[oaicite:7]{index=7}
